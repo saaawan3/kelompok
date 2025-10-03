@@ -1,54 +1,92 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Form Kelompok</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 30px; background: #f2f2f2; }
-    form { background: white; padding: 20px; max-width: 320px; margin: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 14px; }
-    button { background: #4CAF50; color: white; border: none; cursor: pointer; }
-    button:hover { background: #45a049; }
-    .success { color: green; text-align: center; margin-top: 10px; display: none; }
-    .error { color: red; text-align: center; margin-top: 10px; display: none; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+    .form-container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 300px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: green;
+      color: white;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: darkgreen;
+    }
+    .success {
+      color: green;
+      margin-top: 10px;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+  <div class="form-container">
+    <h3>Masukkan Nama Anda</h3>
+    <input type="text" id="nama" placeholder="Nama lengkap" required />
+    <button id="submitBtn">Kirim</button>
+    <div id="message"></div>
+  </div>
 
-<form id="nameForm">
-  <h3>Masukkan Nama Anda</h3>
-  <input type="text" id="nama" placeholder="Nama lengkap" required>
-  <button type="submit">Kirim</button>
-  <div class="success" id="successMsg">? Nama berhasil dikirim!</div>
-  <div class="error" id="errorMsg">?? Terjadi kesalahan. Coba lagi.</div>
-</form>
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwjjSmx79BOLFMHvJrgzTgz2ztDZoEQ1VMBQUs9L_oGiG9IzEohAUfYaTDP0HZcvgbCWA/exec";
+    const btn = document.getElementById('submitBtn');
+    const namaInput = document.getElementById('nama');
+    const message = document.getElementById('message');
 
-<script>
-document.getElementById('nameForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  const nama = document.getElementById('nama').value.trim();
-  if(!nama) return;
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbySoYX8hV4SN17UCJFxAjXoeSE9Ggtm2tsUg0g46ROtpo-TacPk_ek0mLAMD1r2N5EYqw/exec", {
-      method: "POST",
-      body: JSON.stringify({ nama }),
-      headers: { "Content-Type": "application/json" }
+    btn.addEventListener('click', async () => {
+      const nama = namaInput.value.trim();
+      if (!nama) {
+        message.innerHTML = "<p class='error'>Nama tidak boleh kosong!</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama })
+        });
+
+        namaInput.value = "";
+        message.innerHTML = "<p class='success'>✅ Data berhasil dikirim!</p>";
+      } catch (err) {
+        console.error(err);
+        message.innerHTML = "<p class='error'>❌ Gagal mengirim. Cek URL & koneksi.</p>";
+      }
     });
-    if(res.ok){
-      document.getElementById('successMsg').style.display = 'block';
-      document.getElementById('errorMsg').style.display = 'none';
-      document.getElementById('nama').value = '';
-    } else {
-      document.getElementById('errorMsg').style.display = 'block';
-      document.getElementById('successMsg').style.display = 'none';
-    }
-  } catch(err){
-    document.getElementById('errorMsg').textContent = '?? ' + err.message;
-    document.getElementById('errorMsg').style.display = 'block';
-    document.getElementById('successMsg').style.display = 'none';
-  }
-});
-</script>
-
+  </script>
 </body>
 </html>
